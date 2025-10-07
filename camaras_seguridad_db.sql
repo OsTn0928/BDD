@@ -1,10 +1,11 @@
-CREATE DATABASE IF NOT EXISTS camaras_seguridad_db
+CREATE DATABASE camaras_seguridad_db
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_spanish_ci;
 USE camaras_seguridad_db;
 
-CREATE TABLE roles (
-  id_rol TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
+-- Cambié 'roles' -> 'tipo_usuario' y 'id_rol' -> 'id_tipo_usuario'
+CREATE TABLE tipo_usuario (
+  id_tipo_usuario TINYINT UNSIGNED NOT NULL AUTO_INCREMENT,
   nombre VARCHAR(50) NOT NULL,
   descripcion VARCHAR(255),
   created_by INT,
@@ -14,7 +15,7 @@ CREATE TABLE roles (
   deleted_by INT,
   deleted_at DATETIME,
   is_deleted TINYINT UNSIGNED NOT NULL DEFAULT 0,
-  PRIMARY KEY (id_rol),
+  PRIMARY KEY (id_tipo_usuario),
   CHECK (is_deleted IN (0,1)),
   CHECK (CHAR_LENGTH(nombre) > 0)
 );
@@ -25,7 +26,7 @@ CREATE TABLE usuarios (
   contrasena_hash VARCHAR(255) NOT NULL,
   nombre_completo VARCHAR(200) NOT NULL,
   correo VARCHAR(150),
-  id_rol TINYINT UNSIGNED NOT NULL,
+  id_tipo_usuario TINYINT UNSIGNED NOT NULL,
   telefono VARCHAR(30),
   created_by INT,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -35,7 +36,7 @@ CREATE TABLE usuarios (
   deleted_at DATETIME,
   is_deleted TINYINT UNSIGNED NOT NULL DEFAULT 0,
   PRIMARY KEY (id_usuario),
-  CONSTRAINT fk_usuarios_roles FOREIGN KEY (id_rol) REFERENCES roles(id_rol),
+  CONSTRAINT fk_usuarios_tipo_usuario FOREIGN KEY (id_tipo_usuario) REFERENCES tipo_usuario(id_tipo_usuario),
   CHECK (is_deleted IN (0,1))
 );
 
@@ -76,7 +77,8 @@ CREATE TABLE plazas (
 CREATE TABLE camaras (
   id_camara INT UNSIGNED NOT NULL AUTO_INCREMENT,
   id_plaza INT UNSIGNED NOT NULL,
-  identificador VARCHAR(100) NOT NULL,
+  -- reemplazado 'identificador' por 'numero_serie' para evitar confusión con 'modelo'
+  numero_serie VARCHAR(100) NOT NULL UNIQUE,
   modelo VARCHAR(100),
   direccion_ip VARCHAR(45),
   fecha_instalacion DATE,
@@ -207,4 +209,3 @@ CREATE TABLE eventos_camara (
   CHECK (nivel_confianza BETWEEN 0 AND 100),
   CHECK (modified_at IS NULL OR modified_at >= created_at)
 );
-
